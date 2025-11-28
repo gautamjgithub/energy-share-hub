@@ -22,6 +22,7 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          glow: "hsl(var(--primary-glow))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -56,6 +57,18 @@ export default {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
+        },
+        energy: {
+          low: "hsl(var(--energy-low))",
+          medium: "hsl(var(--energy-medium))",
+          high: "hsl(var(--energy-high))",
+          full: "hsl(var(--energy-full))",
+        },
+        status: {
+          requested: "hsl(var(--status-requested))",
+          accepted: "hsl(var(--status-accepted))",
+          progress: "hsl(var(--status-progress))",
+          completed: "hsl(var(--status-completed))",
         },
       },
       borderRadius: {
