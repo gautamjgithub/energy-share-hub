@@ -100,7 +100,7 @@ const ConsumerDashboard = ({ onBack, userId }: ConsumerDashboardProps) => {
               <Card className="px-4 py-2">
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-secondary" />
-                  <span className="font-semibold">${walletBalance.toFixed(2)}</span>
+                  <span className="font-semibold">₹{walletBalance.toFixed(2)}</span>
                 </div>
               </Card>
               {selectedCar && (
@@ -189,12 +189,12 @@ const ConsumerDashboard = ({ onBack, userId }: ConsumerDashboardProps) => {
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">Price/kWh</div>
-                      <div className="font-semibold">${request.price_per_kwh}</div>
+                      <div className="font-semibold">₹{request.price_per_kwh}</div>
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">Total</div>
                       <div className="font-semibold text-secondary">
-                        ${(request.requested_energy_kwh * request.price_per_kwh).toFixed(2)}
+                        ₹{(request.requested_energy_kwh * request.price_per_kwh).toFixed(2)}
                       </div>
                     </div>
                   </div>

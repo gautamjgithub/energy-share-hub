@@ -132,7 +132,7 @@ const AdminDashboard = ({ onBack, userId }: AdminDashboardProps) => {
               <span className="text-sm text-muted-foreground">Total Value</span>
               <TrendingUp className="h-5 w-5 text-energy-high" />
             </div>
-            <div className="text-3xl font-bold">${networkStats.totalValue.toFixed(0)}</div>
+            <div className="text-3xl font-bold">₹{networkStats.totalValue.toFixed(0)}</div>
             <div className="text-xs text-muted-foreground mt-1">Transaction volume</div>
           </Card>
         </div>
@@ -202,7 +202,7 @@ const AdminDashboard = ({ onBack, userId }: AdminDashboardProps) => {
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">Value</div>
                       <div className="font-semibold text-secondary">
-                        ${(tx.requested_energy_kwh * tx.price_per_kwh).toFixed(2)}
+                        ₹{(tx.requested_energy_kwh * tx.price_per_kwh).toFixed(2)}
                       </div>
                     </div>
                     <div>
@@ -241,7 +241,7 @@ const AdminDashboard = ({ onBack, userId }: AdminDashboardProps) => {
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">Amount</div>
-                      <div className="font-semibold text-secondary">${payment.amount || 0}</div>
+                      <div className="font-semibold text-secondary">₹{payment.amount || 0}</div>
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">Status</div>

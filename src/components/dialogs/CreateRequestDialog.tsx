@@ -38,7 +38,7 @@ const CreateRequestDialog = ({ open, onOpenChange, carId, onSuccess }: CreateReq
 
       toast({
         title: "Request Created",
-        description: `Looking for providers to supply ${energyNeeded[0]} kWh at $${maxPrice}/kWh`,
+        description: `Looking for providers to supply ${energyNeeded[0]} kWh at ₹${maxPrice}/kWh`,
       });
       
       onSuccess?.();
@@ -130,12 +130,12 @@ const CreateRequestDialog = ({ open, onOpenChange, carId, onSuccess }: CreateReq
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Max Price/kWh</span>
-              <span className="font-medium">${maxPrice}</span>
+              <span className="font-medium">₹{maxPrice}</span>
             </div>
             <div className="border-t pt-2 mt-2">
               <div className="flex justify-between">
                 <span className="font-semibold">Estimated Cost</span>
-                <span className="text-xl font-bold text-secondary">${estimatedCost}</span>
+                <span className="text-xl font-bold text-secondary">₹{estimatedCost}</span>
               </div>
             </div>
           </div>
