@@ -4,26 +4,54 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { MapPin, Zap, DollarSign } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { MapPin, Zap, DollarSign, Loader2 } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import { apiClient } from "@/lib/api";
 
 interface CreateRequestDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  carId: string;
+  onSuccess?: () => void;
 }
 
-const CreateRequestDialog = ({ open, onOpenChange }: CreateRequestDialogProps) => {
+const CreateRequestDialog = ({ open, onOpenChange, carId, onSuccess }: CreateRequestDialogProps) => {
+  const [loading, setLoading] = useState(false);
   const [energyNeeded, setEnergyNeeded] = useState([30]);
   const [maxPrice, setMaxPrice] = useState("0.35");
-  const [location, setLocation] = useState("");
-  const { toast } = useToast();
+  const [latitude, setLatitude] = useState("40.7128");
+  const [longitude, setLongitude] = useState("-74.0060");
 
-  const handleSubmit = () => {
-    toast({
-      title: "Request Created",
-      description: `Looking for providers to supply ${energyNeeded[0]} kWh at $${maxPrice}/kWh`,
-    });
-    onOpenChange(false);
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      await apiClient.createChargingRequest({
+        consumer_car_id: carId,
+        requested_energy_kwh: energyNeeded[0],
+        price_per_kwh: parseFloat(maxPrice),
+        status: "requested",
+        location: {
+          lat: parseFloat(latitude),
+          lon: parseFloat(longitude),
+        },
+      });
+
+      toast({
+        title: "Request Created",
+        description: `Looking for providers to supply ${energyNeeded[0]} kWh at $${maxPrice}/kWh`,
+      });
+      
+      onSuccess?.();
+      onOpenChange(false);
+    } catch (error: any) {
+      toast({
+        title: "Request Failed",
+        description: error.message || "Failed to create request. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const estimatedCost = (energyNeeded[0] * parseFloat(maxPrice || "0")).toFixed(2);
@@ -70,16 +98,27 @@ const CreateRequestDialog = ({ open, onOpenChange }: CreateRequestDialogProps) =
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="latitude">Latitude</Label>
               <Input
-                id="location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="pl-9"
-                placeholder="Enter your location"
+                id="latitude"
+                type="number"
+                step="0.0001"
+                value={latitude}
+                onChange={(e) => setLatitude(e.target.value)}
+                placeholder="40.7128"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="longitude">Longitude</Label>
+              <Input
+                id="longitude"
+                type="number"
+                step="0.0001"
+                value={longitude}
+                onChange={(e) => setLongitude(e.target.value)}
+                placeholder="-74.0060"
               />
             </div>
           </div>
@@ -106,7 +145,8 @@ const CreateRequestDialog = ({ open, onOpenChange }: CreateRequestDialogProps) =
           <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} className="flex-1 gradient-primary">
+          <Button onClick={handleSubmit} className="flex-1 gradient-primary" disabled={loading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             <Zap className="mr-2 h-4 w-4" />
             Create Request
           </Button>
