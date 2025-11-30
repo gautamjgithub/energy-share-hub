@@ -12,6 +12,7 @@ interface TrainAgentDialogProps {
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
   userId: string;
+  userRole: "consumer" | "provider";
 }
 
 const TIME_SLOTS = [
@@ -23,13 +24,15 @@ const TIME_SLOTS = [
   { id: "9pm-12am", label: "9pm-12am" },
 ];
 
-const TrainAgentDialog = ({ open, onOpenChange, onSuccess, userId }: TrainAgentDialogProps) => {
+const TrainAgentDialog = ({ open, onOpenChange, onSuccess, userId, userRole }: TrainAgentDialogProps) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     location: "",
     pincode: "",
     pricePerKwh: "",
     preferredSlots: [] as string[],
+    vehicleModel: "",
+    batteryPercentage: "",
   });
 
   const handleSlotToggle = (slotId: string) => {
@@ -46,8 +49,8 @@ const TrainAgentDialog = ({ open, onOpenChange, onSuccess, userId }: TrainAgentD
     setLoading(true);
 
     try {
-      // TODO: Send this data to your API endpoint for storing provider preferences
-      console.log("Provider training data:", { userId, ...formData });
+      // TODO: Send this data to your API endpoint for storing preferences
+      console.log(`${userRole} training data:`, { userId, ...formData });
       
       toast({
         title: "Agent Training Complete",
@@ -63,6 +66,8 @@ const TrainAgentDialog = ({ open, onOpenChange, onSuccess, userId }: TrainAgentD
         pincode: "",
         pricePerKwh: "",
         preferredSlots: [],
+        vehicleModel: "",
+        batteryPercentage: "",
       });
     } catch (error: any) {
       toast({
@@ -89,65 +94,102 @@ const TrainAgentDialog = ({ open, onOpenChange, onSuccess, userId }: TrainAgentD
           </Button>
           <DialogTitle className="text-2xl">Train your Agent</DialogTitle>
           <p className="text-muted-foreground">
-            Providers — provide location, pincode and preferred availability slots.
-            <br />
-            <span className="text-sm">(Vehicle info is optional and is not required.)</span>
+            {userRole === "consumer" 
+              ? "Consumers — provide your car model and current battery percentage so the agent can make decisions for you."
+              : "Providers — provide location, pincode and preferred availability slots."}
+            {userRole === "provider" && (
+              <>
+                <br />
+                <span className="text-sm">(Vehicle info is optional and is not required.)</span>
+              </>
+            )}
           </p>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="location">Location / Address</Label>
-            <Input
-              id="location"
-              value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              placeholder="Enter your location"
-              required
-            />
-          </div>
+          {userRole === "consumer" ? (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="vehicleModel">Vehicle Model</Label>
+                <Input
+                  id="vehicleModel"
+                  value={formData.vehicleModel}
+                  onChange={(e) => setFormData({ ...formData, vehicleModel: e.target.value })}
+                  placeholder="e.g. Tesla Model 3"
+                  required
+                />
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="pincode">Pincode</Label>
-            <Input
-              id="pincode"
-              value={formData.pincode}
-              onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-              placeholder="Enter pincode"
-              required
-            />
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="batteryPercentage">Battery percentage (%)</Label>
+                <Input
+                  id="batteryPercentage"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.batteryPercentage}
+                  onChange={(e) => setFormData({ ...formData, batteryPercentage: e.target.value })}
+                  placeholder="Enter current battery percentage"
+                  required
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="location">Location / Address</Label>
+                <Input
+                  id="location"
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  placeholder="Enter your location"
+                  required
+                />
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="price">Price per kWh (USD)</Label>
-            <Input
-              id="price"
-              type="number"
-              step="0.01"
-              value={formData.pricePerKwh}
-              onChange={(e) => setFormData({ ...formData, pricePerKwh: e.target.value })}
-              placeholder="Enter price"
-              required
-            />
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="pincode">Pincode</Label>
+                <Input
+                  id="pincode"
+                  value={formData.pincode}
+                  onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
+                  placeholder="Enter pincode"
+                  required
+                />
+              </div>
 
-          <div className="space-y-3">
-            <Label>Preferred slot timings (choose one or more)</Label>
-            <div className="grid grid-cols-2 gap-3">
-              {TIME_SLOTS.map((slot) => (
-                <div key={slot.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={slot.id}
-                    checked={formData.preferredSlots.includes(slot.id)}
-                    onCheckedChange={() => handleSlotToggle(slot.id)}
-                  />
-                  <Label htmlFor={slot.id} className="font-normal cursor-pointer">
-                    {slot.label}
-                  </Label>
+              <div className="space-y-2">
+                <Label htmlFor="price">Price per kWh (USD)</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  value={formData.pricePerKwh}
+                  onChange={(e) => setFormData({ ...formData, pricePerKwh: e.target.value })}
+                  placeholder="Enter price"
+                  required
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label>Preferred slot timings (choose one or more)</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  {TIME_SLOTS.map((slot) => (
+                    <div key={slot.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={slot.id}
+                        checked={formData.preferredSlots.includes(slot.id)}
+                        onCheckedChange={() => handleSlotToggle(slot.id)}
+                      />
+                      <Label htmlFor={slot.id} className="font-normal cursor-pointer">
+                        {slot.label}
+                      </Label>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            </>
+          )}
 
           <div className="flex gap-3 pt-4">
             <Button 
@@ -164,7 +206,7 @@ const TrainAgentDialog = ({ open, onOpenChange, onSuccess, userId }: TrainAgentD
               disabled={loading}
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save & Continue
+              Train Agent
             </Button>
           </div>
         </form>
