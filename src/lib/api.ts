@@ -67,7 +67,9 @@ class ApiClient {
 
   async getAllUsers(): Promise<User[]> {
     const response = await fetch(`${this.baseUrl}/users/users`);
-    return response.json();
+    if (!response.ok) return [];
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
   }
 
   async getUserById(userId: string): Promise<User> {
@@ -87,7 +89,9 @@ class ApiClient {
 
   async getAllCars(): Promise<Car[]> {
     const response = await fetch(`${this.baseUrl}/cars/cars`);
-    return response.json();
+    if (!response.ok) return [];
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
   }
 
   async getCarById(carId: string): Promise<Car> {
@@ -138,7 +142,9 @@ class ApiClient {
 
   async getAllChargingRequests(): Promise<ChargingRequest[]> {
     const response = await fetch(`${this.baseUrl}/charging/all`);
-    return response.json();
+    if (!response.ok) return [];
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
   }
 
   async getChargingRequestById(requestId: string): Promise<ChargingRequest> {
@@ -156,7 +162,9 @@ class ApiClient {
 
   async getAllPayments(): Promise<any[]> {
     const response = await fetch(`${this.baseUrl}/payments/all`);
-    return response.json();
+    if (!response.ok) return [];
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
   }
 
   async getPaymentByHash(txHash: string): Promise<any> {
