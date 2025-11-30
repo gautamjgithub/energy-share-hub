@@ -36,11 +36,11 @@ const Index = () => {
     setRegisteredUserId(newUserId);
     setRegisteredUserRole(role);
     
-    // If provider, show train agent dialog
-    if (role === "provider") {
+    // If provider or consumer, show train agent dialog
+    if (role === "provider" || role === "consumer") {
       setShowTrainAgent(true);
     } else {
-      // For consumer and admin, just set the user ID and show success
+      // For admin, just set the user ID and show success
       setUserId(newUserId);
       setTempUserId(newUserId);
       toast({
@@ -121,6 +121,7 @@ const Index = () => {
           onOpenChange={setShowTrainAgent}
           onSuccess={handleTrainAgentSuccess}
           userId={registeredUserId}
+          userRole={registeredUserRole as "consumer" | "provider"}
         />
       </div>
     );
