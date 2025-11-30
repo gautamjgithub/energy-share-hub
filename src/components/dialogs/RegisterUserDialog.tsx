@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "@/components/ui/use-toast";
 import { apiClient } from "@/lib/api";
 import { Loader2 } from "lucide-react";
@@ -21,6 +22,7 @@ const RegisterUserDialog = ({ open, onOpenChange, onSuccess }: RegisterUserDialo
     email: "",
     role: "consumer" as "consumer" | "provider" | "admin",
     wallet_address: "",
+    provider_type: "rent_car_charging_point" as "rent_car_charging_point" | "charging_station_owner",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,7 +30,11 @@ const RegisterUserDialog = ({ open, onOpenChange, onSuccess }: RegisterUserDialo
     setLoading(true);
 
     try {
-      const result = await apiClient.registerUser(formData);
+      const userData = {
+        ...formData,
+        metadata: formData.role === "provider" ? { provider_type: formData.provider_type } : undefined,
+      };
+      const result = await apiClient.registerUser(userData);
       toast({
         title: "Registration Successful",
         description: `User ${formData.username} has been registered successfully.`,
@@ -40,6 +46,7 @@ const RegisterUserDialog = ({ open, onOpenChange, onSuccess }: RegisterUserDialo
         email: "",
         role: "consumer",
         wallet_address: "",
+        provider_type: "rent_car_charging_point",
       });
     } catch (error: any) {
       toast({
@@ -100,6 +107,31 @@ const RegisterUserDialog = ({ open, onOpenChange, onSuccess }: RegisterUserDialo
               </SelectContent>
             </Select>
           </div>
+
+          {formData.role === "provider" && (
+            <div className="space-y-3">
+              <Label>Provider Type</Label>
+              <RadioGroup
+                value={formData.provider_type}
+                onValueChange={(value: "rent_car_charging_point" | "charging_station_owner") =>
+                  setFormData({ ...formData, provider_type: value })
+                }
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="rent_car_charging_point" id="rent" />
+                  <Label htmlFor="rent" className="font-normal cursor-pointer">
+                    Rent my own car charging point
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="charging_station_owner" id="station" />
+                  <Label htmlFor="station" className="font-normal cursor-pointer">
+                    Charging station owner
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="wallet">Wallet Address</Label>
