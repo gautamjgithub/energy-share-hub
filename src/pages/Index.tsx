@@ -1,26 +1,95 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Zap, Car, Battery, Network, Shield, TrendingUp } from "lucide-react";
 import ConsumerDashboard from "@/components/dashboards/ConsumerDashboard";
 import ProviderDashboard from "@/components/dashboards/ProviderDashboard";
 import AdminDashboard from "@/components/dashboards/AdminDashboard";
+import RegisterUserDialog from "@/components/dialogs/RegisterUserDialog";
 
 type UserRole = "consumer" | "provider" | "admin" | null;
 
 const Index = () => {
   const [userRole, setUserRole] = useState<UserRole>(null);
+  const [userId, setUserId] = useState<string>("");
+  const [showRegisterUser, setShowRegisterUser] = useState(false);
+  const [tempUserId, setTempUserId] = useState<string>("");
 
-  if (userRole === "consumer") {
-    return <ConsumerDashboard onBack={() => setUserRole(null)} />;
+  const handleRoleSelection = (role: UserRole) => {
+    setUserRole(role);
+  };
+
+  const handleUserIdSubmit = () => {
+    if (tempUserId.trim()) {
+      setUserId(tempUserId);
+    }
+  };
+
+  const handleRegisterSuccess = (newUserId: string) => {
+    setUserId(newUserId);
+    setTempUserId(newUserId);
+  };
+
+  if (userRole && userId) {
+    if (userRole === "consumer") {
+      return <ConsumerDashboard onBack={() => { setUserRole(null); setUserId(""); }} userId={userId} />;
+    }
+    if (userRole === "provider") {
+      return <ProviderDashboard onBack={() => { setUserRole(null); setUserId(""); }} userId={userId} />;
+    }
+    if (userRole === "admin") {
+      return <AdminDashboard onBack={() => { setUserRole(null); setUserId(""); }} />;
+    }
   }
 
-  if (userRole === "provider") {
-    return <ProviderDashboard onBack={() => setUserRole(null)} />;
-  }
-
-  if (userRole === "admin") {
-    return <AdminDashboard onBack={() => setUserRole(null)} />;
+  if (userRole && !userId) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full p-8">
+          <h2 className="text-2xl font-bold mb-6 text-center">Enter User ID</h2>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="userId">User ID</Label>
+              <Input
+                id="userId"
+                value={tempUserId}
+                onChange={(e) => setTempUserId(e.target.value)}
+                placeholder="Enter your user ID"
+              />
+            </div>
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={() => setUserRole(null)} className="flex-1">
+                Back
+              </Button>
+              <Button onClick={handleUserIdSubmit} className="flex-1 gradient-primary" disabled={!tempUserId.trim()}>
+                Continue
+              </Button>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or
+                </span>
+              </div>
+            </div>
+            <Button variant="outline" onClick={() => setShowRegisterUser(true)} className="w-full">
+              Register New User
+            </Button>
+          </div>
+        </Card>
+        
+        <RegisterUserDialog
+          open={showRegisterUser}
+          onOpenChange={setShowRegisterUser}
+          onSuccess={handleRegisterSuccess}
+        />
+      </div>
+    );
   }
 
   return (
@@ -54,7 +123,7 @@ const Index = () => {
               <Button 
                 size="lg" 
                 className="gradient-primary shadow-glow hover:scale-105 transition-transform"
-                onClick={() => setUserRole("consumer")}
+                onClick={() => handleRoleSelection("consumer")}
               >
                 <Car className="mr-2 h-5 w-5" />
                 Join as Consumer
@@ -63,7 +132,7 @@ const Index = () => {
                 size="lg" 
                 variant="outline"
                 className="border-primary/50 hover:bg-primary/10"
-                onClick={() => setUserRole("provider")}
+                onClick={() => handleRoleSelection("provider")}
               >
                 <Battery className="mr-2 h-5 w-5" />
                 Join as Provider
@@ -148,7 +217,7 @@ const Index = () => {
                 <Button 
                   className="mt-6 w-full"
                   variant="outline"
-                  onClick={() => setUserRole("consumer")}
+                  onClick={() => handleRoleSelection("consumer")}
                 >
                   View Consumer Portal
                 </Button>
@@ -166,7 +235,7 @@ const Index = () => {
                 <Button 
                   className="mt-6 w-full"
                   variant="outline"
-                  onClick={() => setUserRole("provider")}
+                  onClick={() => handleRoleSelection("provider")}
                 >
                   View Provider Portal
                 </Button>
@@ -184,7 +253,7 @@ const Index = () => {
                 <Button 
                   className="mt-6 w-full"
                   variant="outline"
-                  onClick={() => setUserRole("admin")}
+                  onClick={() => handleRoleSelection("admin")}
                 >
                   View Admin Portal
                 </Button>

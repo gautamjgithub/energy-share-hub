@@ -1,91 +1,64 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, Activity, Users, Zap, 
-  Shield, AlertTriangle, TrendingUp, Database 
+  Shield, AlertTriangle, TrendingUp, Database, Loader2 
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { apiClient, ChargingRequest } from "@/lib/api";
+import { toast } from "@/components/ui/use-toast";
 
 interface AdminDashboardProps {
   onBack: () => void;
 }
 
 const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
-  const networkStats = {
-    totalUsers: 1247,
-    activeTransactions: 47,
-    totalEnergyTraded: 15632,
-    blockchainBlocks: 8456,
-    successRate: 98.7
+  const [requests, setRequests] = useState<ChargingRequest[]>([]);
+  const [payments, setPayments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [allRequests, allPayments] = await Promise.all([
+        apiClient.getAllChargingRequests(),
+        apiClient.getAllPayments(),
+      ]);
+      
+      setRequests(allRequests);
+      setPayments(allPayments);
+    } catch (error: any) {
+      toast({
+        title: "Load Failed",
+        description: error.message || "Failed to load data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const recentTransactions = [
-    {
-      id: "TXN-8456",
-      consumer: "User-245",
-      provider: "User-782",
-      energy: 35,
-      amount: 12.25,
-      status: "completed",
-      blockHash: "0x7f3a...4b2c",
-      timestamp: "2 min ago"
-    },
-    {
-      id: "TXN-8455",
-      consumer: "User-391",
-      provider: "Station-12",
-      energy: 50,
-      amount: 20.00,
-      status: "in_progress",
-      blockHash: "pending",
-      timestamp: "5 min ago"
-    },
-    {
-      id: "TXN-8454",
-      consumer: "User-102",
-      provider: "User-543",
-      energy: 25,
-      amount: 8.75,
-      status: "completed",
-      blockHash: "0x9c2f...7d1a",
-      timestamp: "8 min ago"
-    }
-  ];
+  const networkStats = {
+    totalTransactions: requests.length,
+    activeTransactions: requests.filter(r => r.status === "in_progress").length,
+    completedTransactions: requests.filter(r => r.status === "completed").length,
+    totalEnergyTraded: requests.reduce((sum, r) => sum + r.requested_energy_kwh, 0),
+    totalValue: requests.reduce((sum, r) => sum + (r.requested_energy_kwh * r.price_per_kwh), 0),
+  };
 
-  const disputes = [
-    {
-      id: "DISP-12",
-      transaction: "TXN-8401",
-      reason: "Energy mismatch",
-      status: "investigating",
-      priority: "high"
-    }
-  ];
-
-  const aiAgentActivity = [
-    {
-      id: 1,
-      agent: "AI-Agent-07",
-      action: "Auto-accepted request",
-      details: "Consumer within 1.5km, price match",
-      timestamp: "1 min ago"
-    },
-    {
-      id: 2,
-      agent: "AI-Agent-03",
-      action: "Created provider listing",
-      details: "Surplus energy detected: 45 kWh",
-      timestamp: "3 min ago"
-    },
-    {
-      id: 3,
-      agent: "AI-Agent-12",
-      action: "Negotiated price",
-      details: "Adjusted from $0.40 to $0.36/kWh",
-      timestamp: "7 min ago"
-    }
-  ];
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -115,20 +88,29 @@ const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
         <div className="grid md:grid-cols-5 gap-6 mb-8">
           <Card className="p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Total Users</span>
-              <Users className="h-5 w-5 text-primary" />
+              <span className="text-sm text-muted-foreground">Total Txns</span>
+              <Activity className="h-5 w-5 text-primary" />
             </div>
-            <div className="text-3xl font-bold">{networkStats.totalUsers}</div>
-            <div className="text-xs text-muted-foreground mt-1">Active network participants</div>
+            <div className="text-3xl font-bold">{networkStats.totalTransactions}</div>
+            <div className="text-xs text-muted-foreground mt-1">All time</div>
           </Card>
 
           <Card className="p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Active Txns</span>
+              <span className="text-sm text-muted-foreground">Active</span>
               <Activity className="h-5 w-5 text-status-progress" />
             </div>
             <div className="text-3xl font-bold">{networkStats.activeTransactions}</div>
-            <div className="text-xs text-muted-foreground mt-1">In real-time</div>
+            <div className="text-xs text-muted-foreground mt-1">In progress now</div>
+          </Card>
+
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-muted-foreground">Completed</span>
+              <Shield className="h-5 w-5 text-status-completed" />
+            </div>
+            <div className="text-3xl font-bold">{networkStats.completedTransactions}</div>
+            <div className="text-xs text-muted-foreground mt-1">Successfully finished</div>
           </Card>
 
           <Card className="p-6">
@@ -136,26 +118,17 @@ const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               <span className="text-sm text-muted-foreground">Energy Traded</span>
               <Zap className="h-5 w-5 text-secondary" />
             </div>
-            <div className="text-3xl font-bold">{networkStats.totalEnergyTraded}</div>
+            <div className="text-3xl font-bold">{networkStats.totalEnergyTraded.toFixed(0)}</div>
             <div className="text-xs text-muted-foreground mt-1">Total kWh</div>
           </Card>
 
           <Card className="p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Blockchain</span>
-              <Database className="h-5 w-5 text-accent" />
-            </div>
-            <div className="text-3xl font-bold">{networkStats.blockchainBlocks}</div>
-            <div className="text-xs text-muted-foreground mt-1">Total blocks</div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Success Rate</span>
+              <span className="text-sm text-muted-foreground">Total Value</span>
               <TrendingUp className="h-5 w-5 text-energy-high" />
             </div>
-            <div className="text-3xl font-bold">{networkStats.successRate}%</div>
-            <div className="text-xs text-muted-foreground mt-1">Transaction success</div>
+            <div className="text-3xl font-bold">${networkStats.totalValue.toFixed(0)}</div>
+            <div className="text-xs text-muted-foreground mt-1">Transaction volume</div>
           </Card>
         </div>
 
@@ -163,15 +136,11 @@ const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
           <TabsList>
             <TabsTrigger value="transactions">
               <Activity className="mr-2 h-4 w-4" />
-              Live Transactions
+              All Transactions ({requests.length})
             </TabsTrigger>
-            <TabsTrigger value="disputes">
-              <AlertTriangle className="mr-2 h-4 w-4" />
-              Disputes ({disputes.length})
-            </TabsTrigger>
-            <TabsTrigger value="ai-agents">
-              <Shield className="mr-2 h-4 w-4" />
-              AI Agents
+            <TabsTrigger value="payments">
+              <Database className="mr-2 h-4 w-4" />
+              Payments ({payments.length})
             </TabsTrigger>
             <TabsTrigger value="blockchain">
               <Database className="mr-2 h-4 w-4" />
@@ -181,109 +150,102 @@ const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
 
           {/* Transactions Tab */}
           <TabsContent value="transactions" className="space-y-4">
-            {recentTransactions.map((tx) => (
-              <Card key={tx.id} className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1">{tx.id}</h3>
-                    <p className="text-sm text-muted-foreground">{tx.timestamp}</p>
-                  </div>
-                  <Badge 
-                    className={
-                      tx.status === "completed" 
-                        ? "bg-status-completed" 
-                        : "bg-status-progress"
-                    }
-                  >
-                    {tx.status}
-                  </Badge>
-                </div>
-
-                <div className="grid grid-cols-5 gap-4 mb-4">
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Consumer</div>
-                    <div className="font-medium text-sm">{tx.consumer}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Provider</div>
-                    <div className="font-medium text-sm">{tx.provider}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Energy</div>
-                    <div className="font-semibold">{tx.energy} kWh</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Amount</div>
-                    <div className="font-semibold text-secondary">${tx.amount}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Block Hash</div>
-                    <div className="font-mono text-xs">{tx.blockHash}</div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button variant="outline" size="sm">View Details</Button>
-                  <Button variant="outline" size="sm">Audit Log</Button>
-                </div>
-              </Card>
-            ))}
-          </TabsContent>
-
-          {/* Disputes Tab */}
-          <TabsContent value="disputes" className="space-y-4">
-            {disputes.length === 0 ? (
+            {requests.length === 0 ? (
               <Card className="p-12 text-center">
-                <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No Active Disputes</h3>
+                <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">No Transactions</h3>
                 <p className="text-muted-foreground">
-                  All transactions are proceeding smoothly
+                  Transaction history will appear here
                 </p>
               </Card>
             ) : (
-              disputes.map((dispute) => (
-                <Card key={dispute.id} className="p-6 border-destructive/30">
+              requests.map((tx) => (
+                <Card key={tx.request_id} className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="font-semibold text-lg mb-1">{dispute.id}</h3>
-                      <p className="text-sm text-muted-foreground">Transaction: {dispute.transaction}</p>
+                      <h3 className="font-semibold text-lg mb-1">{tx.request_id}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(tx.requested_at).toLocaleString()}
+                      </p>
                     </div>
-                    <Badge variant="destructive">{dispute.priority}</Badge>
+                    <Badge 
+                      className={
+                        tx.status === "completed" 
+                          ? "bg-status-completed" 
+                          : tx.status === "in_progress"
+                          ? "bg-status-progress"
+                          : "bg-status-requested"
+                      }
+                    >
+                      {tx.status}
+                    </Badge>
                   </div>
 
-                  <div className="mb-4">
-                    <div className="text-sm text-muted-foreground mb-1">Reason</div>
-                    <div className="font-medium">{dispute.reason}</div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <Button className="flex-1">Investigate</Button>
-                    <Button variant="outline" className="flex-1">Contact Parties</Button>
+                  <div className="grid grid-cols-5 gap-4">
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Consumer</div>
+                      <div className="font-medium text-sm">{tx.consumer_car_id}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Provider</div>
+                      <div className="font-medium text-sm">{tx.provider_car_id || "Pending"}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Energy</div>
+                      <div className="font-semibold">{tx.requested_energy_kwh} kWh</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Value</div>
+                      <div className="font-semibold text-secondary">
+                        ${(tx.requested_energy_kwh * tx.price_per_kwh).toFixed(2)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Location</div>
+                      <div className="font-mono text-xs">
+                        {tx.location.lat.toFixed(2)}, {tx.location.lon.toFixed(2)}
+                      </div>
+                    </div>
                   </div>
                 </Card>
               ))
             )}
           </TabsContent>
 
-          {/* AI Agents Tab */}
-          <TabsContent value="ai-agents" className="space-y-4">
-            {aiAgentActivity.map((activity) => (
-              <Card key={activity.id} className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-                    <Shield className="h-6 w-6 text-accent" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-semibold">{activity.agent}</h3>
-                      <span className="text-sm text-muted-foreground">{activity.timestamp}</span>
-                    </div>
-                    <div className="text-sm font-medium text-primary mb-1">{activity.action}</div>
-                    <p className="text-sm text-muted-foreground">{activity.details}</p>
-                  </div>
-                </div>
+          {/* Payments Tab */}
+          <TabsContent value="payments" className="space-y-4">
+            {payments.length === 0 ? (
+              <Card className="p-12 text-center">
+                <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">No Payments</h3>
+                <p className="text-muted-foreground">
+                  Payment records will appear here
+                </p>
               </Card>
-            ))}
+            ) : (
+              payments.map((payment, idx) => (
+                <Card key={idx} className="p-6">
+                  <div className="grid grid-cols-4 gap-4">
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">TX Hash</div>
+                      <div className="font-mono text-sm">{payment.tx_hash || "N/A"}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Token</div>
+                      <div className="font-semibold">{payment.token || "N/A"}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Amount</div>
+                      <div className="font-semibold text-secondary">${payment.amount || 0}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Status</div>
+                      <Badge>Completed</Badge>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
           </TabsContent>
 
           {/* Blockchain Tab */}
@@ -300,9 +262,9 @@ const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="text-center p-6 bg-muted/30 rounded-lg">
                   <div className="text-3xl font-bold text-primary mb-2">
-                    {networkStats.blockchainBlocks}
+                    {networkStats.totalTransactions}
                   </div>
-                  <div className="text-sm text-muted-foreground">Total Blocks</div>
+                  <div className="text-sm text-muted-foreground">Total Transactions</div>
                 </div>
                 <div className="text-center p-6 bg-muted/30 rounded-lg">
                   <div className="text-3xl font-bold text-secondary mb-2">3</div>
@@ -315,7 +277,9 @@ const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               </div>
 
               <div className="flex gap-3 mt-6">
-                <Button className="flex-1 gradient-primary">View Chaincode</Button>
+                <Button className="flex-1 gradient-primary" onClick={loadData}>
+                  Refresh Data
+                </Button>
                 <Button variant="outline" className="flex-1">Export Audit Log</Button>
               </div>
             </Card>
