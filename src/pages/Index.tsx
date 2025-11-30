@@ -40,7 +40,7 @@ const Index = () => {
       return <ProviderDashboard onBack={() => { setUserRole(null); setUserId(""); }} userId={userId} />;
     }
     if (userRole === "admin") {
-      return <AdminDashboard onBack={() => { setUserRole(null); setUserId(""); }} />;
+      return <AdminDashboard onBack={() => { setUserRole(null); setUserId(""); }} userId={userId} />;
     }
   }
 
@@ -64,7 +64,7 @@ const Index = () => {
                 Back
               </Button>
               <Button onClick={handleUserIdSubmit} className="flex-1 gradient-primary" disabled={!tempUserId.trim()}>
-                Continue
+                Login
               </Button>
             </div>
             <div className="relative">

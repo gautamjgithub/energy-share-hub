@@ -12,6 +12,7 @@ import ProviderMapView from "@/components/maps/ProviderMapView";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { apiClient, Car as ApiCar, ChargingRequest } from "@/lib/api";
 import { toast } from "@/components/ui/use-toast";
+import UserProfileMenu from "@/components/UserProfileMenu";
 
 interface ConsumerDashboardProps {
   onBack: () => void;
@@ -108,6 +109,7 @@ const ConsumerDashboard = ({ onBack, userId }: ConsumerDashboardProps) => {
                   New Request
                 </Button>
               )}
+              <UserProfileMenu userId={userId} onLogout={onBack} />
             </div>
           </div>
         </div>
