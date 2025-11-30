@@ -9,12 +9,14 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { apiClient, ChargingRequest } from "@/lib/api";
 import { toast } from "@/components/ui/use-toast";
+import UserProfileMenu from "@/components/UserProfileMenu";
 
 interface AdminDashboardProps {
   onBack: () => void;
+  userId?: string;
 }
 
-const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
+const AdminDashboard = ({ onBack, userId }: AdminDashboardProps) => {
   const [requests, setRequests] = useState<ChargingRequest[]>([]);
   const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,10 +77,13 @@ const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
                 <p className="text-sm text-muted-foreground">Marketplace Oversight & Control</p>
               </div>
             </div>
-            <Badge className="gradient-primary px-4 py-2">
-              <Shield className="mr-2 h-4 w-4" />
-              Org3: Marketplace Admin
-            </Badge>
+            <div className="flex items-center gap-4">
+              <Badge className="gradient-primary px-4 py-2">
+                <Shield className="mr-2 h-4 w-4" />
+                Org3: Marketplace Admin
+              </Badge>
+              {userId && <UserProfileMenu userId={userId} onLogout={onBack} />}
+            </div>
           </div>
         </div>
       </header>

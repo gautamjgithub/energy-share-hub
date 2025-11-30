@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { apiClient, Car as ApiCar, ChargingRequest } from "@/lib/api";
 import { toast } from "@/components/ui/use-toast";
 import RegisterCarDialog from "@/components/dialogs/RegisterCarDialog";
+import UserProfileMenu from "@/components/UserProfileMenu";
 
 interface ProviderDashboardProps {
   onBack: () => void;
@@ -133,6 +134,7 @@ const ProviderDashboard = ({ onBack, userId }: ProviderDashboardProps) => {
                 <p className="text-sm text-muted-foreground">Manage your energy offerings</p>
               </div>
             </div>
+            <UserProfileMenu userId={userId} onLogout={onBack} />
           </div>
         </div>
       </header>
