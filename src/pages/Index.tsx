@@ -8,6 +8,8 @@ import ConsumerDashboard from "@/components/dashboards/ConsumerDashboard";
 import ProviderDashboard from "@/components/dashboards/ProviderDashboard";
 import AdminDashboard from "@/components/dashboards/AdminDashboard";
 import RegisterUserDialog from "@/components/dialogs/RegisterUserDialog";
+import TrainAgentDialog from "@/components/dialogs/TrainAgentDialog";
+import { toast } from "@/components/ui/use-toast";
 
 type UserRole = "consumer" | "provider" | "admin" | null;
 
@@ -15,7 +17,10 @@ const Index = () => {
   const [userRole, setUserRole] = useState<UserRole>(null);
   const [userId, setUserId] = useState<string>("");
   const [showRegisterUser, setShowRegisterUser] = useState(false);
+  const [showTrainAgent, setShowTrainAgent] = useState(false);
   const [tempUserId, setTempUserId] = useState<string>("");
+  const [registeredUserId, setRegisteredUserId] = useState<string>("");
+  const [registeredUserRole, setRegisteredUserRole] = useState<UserRole>(null);
 
   const handleRoleSelection = (role: UserRole) => {
     setUserRole(role);
@@ -27,9 +32,31 @@ const Index = () => {
     }
   };
 
-  const handleRegisterSuccess = (newUserId: string) => {
-    setUserId(newUserId);
-    setTempUserId(newUserId);
+  const handleRegisterSuccess = (newUserId: string, role: "consumer" | "provider" | "admin") => {
+    setRegisteredUserId(newUserId);
+    setRegisteredUserRole(role);
+    
+    // If provider, show train agent dialog
+    if (role === "provider") {
+      setShowTrainAgent(true);
+    } else {
+      // For consumer and admin, just set the user ID and show success
+      setUserId(newUserId);
+      setTempUserId(newUserId);
+      toast({
+        title: "Registration Complete",
+        description: "You can now login with your username",
+      });
+    }
+  };
+
+  const handleTrainAgentSuccess = () => {
+    setUserId(registeredUserId);
+    setTempUserId(registeredUserId);
+    toast({
+      title: "Setup Complete",
+      description: "Your provider account is ready!",
+    });
   };
 
   if (userRole && userId) {
@@ -87,6 +114,13 @@ const Index = () => {
           open={showRegisterUser}
           onOpenChange={setShowRegisterUser}
           onSuccess={handleRegisterSuccess}
+        />
+        
+        <TrainAgentDialog
+          open={showTrainAgent}
+          onOpenChange={setShowTrainAgent}
+          onSuccess={handleTrainAgentSuccess}
+          userId={registeredUserId}
         />
       </div>
     );

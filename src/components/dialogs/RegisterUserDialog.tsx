@@ -12,7 +12,7 @@ import { Loader2 } from "lucide-react";
 interface RegisterUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: (userId: string) => void;
+  onSuccess?: (userId: string, role: "consumer" | "provider" | "admin") => void;
 }
 
 const RegisterUserDialog = ({ open, onOpenChange, onSuccess }: RegisterUserDialogProps) => {
@@ -39,8 +39,12 @@ const RegisterUserDialog = ({ open, onOpenChange, onSuccess }: RegisterUserDialo
         title: "Registration Successful",
         description: `User ${formData.username} has been registered successfully.`,
       });
-      onSuccess?.(formData.username);
-      onOpenChange(false);
+      onSuccess?.(formData.username, formData.role);
+      
+      // Only close dialog if not a provider (provider needs to fill train agent form)
+      if (formData.role !== "provider") {
+        onOpenChange(false);
+      }
       setFormData({
         username: "",
         email: "",
