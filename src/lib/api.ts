@@ -67,8 +67,10 @@ class ApiClient {
 
   async getAllUsers(): Promise<User[]> {
     const response = await fetch(`${this.baseUrl}/users/users`);
+    console.log('getAllUsers response.ok:', response.ok, 'status:', response.status);
     if (!response.ok) return [];
     const data = await response.json();
+    console.log('getAllUsers data:', data, 'isArray:', Array.isArray(data));
     return Array.isArray(data) ? data : [];
   }
 
@@ -89,8 +91,10 @@ class ApiClient {
 
   async getAllCars(): Promise<Car[]> {
     const response = await fetch(`${this.baseUrl}/cars/cars`);
+    console.log('getAllCars response.ok:', response.ok, 'status:', response.status);
     if (!response.ok) return [];
     const data = await response.json();
+    console.log('getAllCars data:', data, 'isArray:', Array.isArray(data));
     return Array.isArray(data) ? data : [];
   }
 
@@ -142,8 +146,10 @@ class ApiClient {
 
   async getAllChargingRequests(): Promise<ChargingRequest[]> {
     const response = await fetch(`${this.baseUrl}/charging/all`);
+    console.log('getAllChargingRequests response.ok:', response.ok, 'status:', response.status);
     if (!response.ok) return [];
     const data = await response.json();
+    console.log('getAllChargingRequests data:', data, 'isArray:', Array.isArray(data));
     return Array.isArray(data) ? data : [];
   }
 
