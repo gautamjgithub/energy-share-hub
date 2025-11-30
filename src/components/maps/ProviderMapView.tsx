@@ -88,7 +88,7 @@ const ProviderMapView = () => {
                     </div>
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <DollarSign className="h-3 w-3" />
-                      <span>${provider.price}/kWh</span>
+                      <span>₹{provider.price}/kWh</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <span className="text-status-requested">★</span>

@@ -143,7 +143,7 @@ const Index = () => {
 
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                HUM-X
+                energeia-tatra
               </span>
               <br />
               <span className="text-foreground">Energy Marketplace</span>
@@ -182,7 +182,7 @@ const Index = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              How HUM-X Works
+              How energeia-tatra Works
             </h2>
             <p className="text-muted-foreground text-lg">
               Blockchain-powered energy trading with AI-driven matching
@@ -328,7 +328,7 @@ const Index = () => {
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
               <Zap className="h-5 w-5 text-primary" />
-              <span className="font-semibold">HUM-X Energy Marketplace</span>
+              <span className="font-semibold">energeia-tatra Energy Marketplace</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Powered by Hyperledger Fabric • Sustainable Energy Trading

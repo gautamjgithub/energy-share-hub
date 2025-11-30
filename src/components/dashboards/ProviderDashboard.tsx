@@ -147,7 +147,7 @@ const ProviderDashboard = ({ onBack, userId }: ProviderDashboardProps) => {
               <span className="text-sm text-muted-foreground">Total Earnings</span>
               <DollarSign className="h-5 w-5 text-secondary" />
             </div>
-            <div className="text-3xl font-bold text-secondary">${earnings.toFixed(2)}</div>
+            <div className="text-3xl font-bold text-secondary">₹{earnings.toFixed(2)}</div>
             <div className="text-xs text-muted-foreground mt-1">From active transactions</div>
           </Card>
 
@@ -223,7 +223,7 @@ const ProviderDashboard = ({ onBack, userId }: ProviderDashboardProps) => {
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">Price/kWh</div>
-                      <div className="font-semibold">${request.price_per_kwh}</div>
+                      <div className="font-semibold">₹{request.price_per_kwh}</div>
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">Location</div>
@@ -232,7 +232,7 @@ const ProviderDashboard = ({ onBack, userId }: ProviderDashboardProps) => {
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">Total</div>
                       <div className="font-semibold text-secondary">
-                        ${(request.requested_energy_kwh * request.price_per_kwh).toFixed(2)}
+                        ₹{(request.requested_energy_kwh * request.price_per_kwh).toFixed(2)}
                       </div>
                     </div>
                   </div>
@@ -287,12 +287,12 @@ const ProviderDashboard = ({ onBack, userId }: ProviderDashboardProps) => {
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">Price/kWh</div>
-                      <div className="font-semibold">${tx.price_per_kwh}</div>
+                      <div className="font-semibold">₹{tx.price_per_kwh}</div>
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground mb-1">Total</div>
                       <div className="font-semibold text-secondary">
-                        ${(tx.requested_energy_kwh * tx.price_per_kwh).toFixed(2)}
+                        ₹{(tx.requested_energy_kwh * tx.price_per_kwh).toFixed(2)}
                       </div>
                     </div>
                   </div>
